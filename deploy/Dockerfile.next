@@ -1,0 +1,37 @@
+ARG NODE_IMAGE=node:22-alpine
+
+FROM ${NODE_IMAGE} AS base
+RUN apk add --no-cache libc6-compat && corepack enable
+ENV TURBO_TELEMETRY_DISABLED=1 NEXT_TELEMETRY_DISABLED=1
+
+FROM base AS prune
+ARG APP
+WORKDIR /repo
+COPY . .
+RUN pnpm dlx turbo@2.8.20 prune ${APP} --docker
+
+FROM base AS build
+ARG APP
+WORKDIR /repo
+COPY --from=prune /repo/out/json/ ./
+COPY .npmrc* ./
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile
+COPY --from=prune /repo/out/full/ ./
+ARG NEXT_PUBLIC_WEB_URL=""
+ARG API_INTERNAL_URL
+ENV NEXT_PUBLIC_WEB_URL=${NEXT_PUBLIC_WEB_URL} \
+    API_INTERNAL_URL=${API_INTERNAL_URL}
+RUN pnpm turbo run build --filter=${APP} --env-mode=loose
+RUN find apps/${APP}/.next/standalone -name '.env*' -exec rm -rf {} +
+
+FROM ${NODE_IMAGE} AS runtime
+ARG APP
+WORKDIR /app
+ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 HOSTNAME=0.0.0.0 PORT=3000 APP=${APP}
+COPY --from=build --chown=node:node /repo/apps/${APP}/.next/standalone/ ./
+COPY --from=build --chown=node:node /repo/apps/${APP}/.next/static ./apps/${APP}/.next/static
+COPY --from=build --chown=node:node /repo/apps/${APP}/public ./apps/${APP}/public
+USER node
+EXPOSE 3000
+CMD ["sh", "-c", "exec node apps/${APP}/server.js"]

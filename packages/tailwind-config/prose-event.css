@@ -1,0 +1,67 @@
+.prose-event {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: #303030;
+}
+.prose-event > * + * {
+  margin-top: 0.75em;
+}
+.prose-event h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-top: 1.25em;
+}
+.prose-event h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-top: 1em;
+}
+.prose-event p {
+  margin: 0;
+}
+.prose-event:not(.ProseMirror) p:empty::before {
+  content: "\00a0";
+}
+.prose-event strong {
+  font-weight: 600;
+}
+.prose-event em {
+  font-style: italic;
+}
+.prose-event ul,
+.prose-event ol {
+  padding-left: 1.5rem;
+}
+.prose-event ul {
+  list-style: disc;
+}
+.prose-event ol {
+  list-style: decimal;
+}
+.prose-event li {
+  margin-top: 0.25em;
+}
+.prose-event a {
+  color: #2a8af6;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.prose-event img {
+  border-radius: 0.75rem;
+  max-width: 100%;
+  height: auto;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+.prose-event:focus {
+  outline: none;
+}
+.prose-event p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  float: left;
+  height: 0;
+  pointer-events: none;
+}

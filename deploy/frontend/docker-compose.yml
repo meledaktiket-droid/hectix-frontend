@@ -1,0 +1,59 @@
+name: hectix
+
+x-next: &next
+  restart: unless-stopped
+  environment:
+    API_INTERNAL_URL: ${API_INTERNAL_URL}
+
+services:
+  web:
+    <<: *next
+    build:
+      context: ../..
+      dockerfile: deploy/Dockerfile.next
+      args:
+        APP: web
+        API_INTERNAL_URL: ${API_INTERNAL_URL}
+    image: hectix-web
+
+  organizer:
+    <<: *next
+    build:
+      context: ../..
+      dockerfile: deploy/Dockerfile.next
+      args:
+        APP: organizer
+        API_INTERNAL_URL: ${API_INTERNAL_URL}
+        NEXT_PUBLIC_WEB_URL: ${NEXT_PUBLIC_WEB_URL}
+    image: hectix-organizer
+
+  admin:
+    <<: *next
+    build:
+      context: ../..
+      dockerfile: deploy/Dockerfile.next
+      args:
+        APP: admin
+        API_INTERNAL_URL: ${API_INTERNAL_URL}
+    image: hectix-admin
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+      - organizer
+      - admin
+
+volumes:
+  caddy_data:
+  caddy_config:

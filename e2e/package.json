@@ -1,0 +1,19 @@
+{
+  "name": "e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "./run.sh",
+    "test:raw": "playwright test",
+    "report": "playwright show-report",
+    "teardown": "./run.sh --teardown-only"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.0",
+    "@types/node": "^24.0.0",
+    "@types/pg": "^8.20.0",
+    "pg": "8.20.0",
+    "tsx": "^4.21.0",
+    "typescript": "5.9.2"
+  }
+}

@@ -1,0 +1,14 @@
+{$WEB_HOST} {
+	encode zstd gzip
+	reverse_proxy web:3000
+}
+
+{$ORGANIZER_HOST} {
+	encode zstd gzip
+	reverse_proxy organizer:3000
+}
+
+{$ADMIN_HOST} {
+	encode zstd gzip
+	reverse_proxy admin:3000
+}

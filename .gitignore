@@ -1,0 +1,32 @@
+# Dependencies & build outputs
+node_modules/
+.next/
+.turbo/
+dist/
+out/
+build/
+
+# Environment variables (NEVER commit secrets)
+.env
+.env.*
+!**/.env.example
+
+# Playwright / E2E artifacts
+playwright-report/
+test-results/
+blob-report/
+
+# TypeScript & Next.js cache
+*.tsbuildinfo
+
+# Database dumps / backups (safety guard)
+*.sql
+*.dump
+*.backup
+*.tar.gz
+
+# OS / IDE files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
