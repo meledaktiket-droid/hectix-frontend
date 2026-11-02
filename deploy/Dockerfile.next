@@ -21,7 +21,8 @@ COPY --from=prune /repo/out/full/ ./
 ARG NEXT_PUBLIC_WEB_URL=""
 ARG API_INTERNAL_URL
 ENV NEXT_PUBLIC_WEB_URL=${NEXT_PUBLIC_WEB_URL} \
-    API_INTERNAL_URL=${API_INTERNAL_URL}
+    API_INTERNAL_URL=${API_INTERNAL_URL} \
+    NODE_OPTIONS="--max-old-space-size=1536"
 RUN pnpm turbo run build --filter=${APP} --env-mode=loose
 RUN find apps/${APP}/.next/standalone -name '.env*' -exec rm -rf {} +
 
