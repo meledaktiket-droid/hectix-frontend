@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useState, useTransition } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Select,
@@ -26,6 +27,13 @@ export function EventSection({
   activeCategory?: string
 }) {
   const pathname = usePathname()
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const [selectedCat, setSelectedCat] = useState(activeCategory)
+
+  useEffect(() => {
+    setSelectedCat(activeCategory)
+  }, [activeCategory])
 
   function categoryHref(id: string) {
     const params = new URLSearchParams()
@@ -35,21 +43,32 @@ export function EventSection({
     return qs ? `${pathname}?${qs}` : pathname
   }
 
+  function handleCategoryClick(e: React.MouseEvent, id: string) {
+    e.preventDefault()
+    const href = categoryHref(id)
+    setSelectedCat(id)
+    startTransition(() => {
+      router.push(href, { scroll: false })
+    })
+  }
+
   return (
     <section className="mx-auto max-w-7xl px-4 py-6">
       <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
         <div className="flex items-center gap-2 flex-1">
           {categories.map((cat) => {
             const href = categoryHref(cat.id)
+            const isActive = selectedCat === cat.id
             return (
               <Link
                 key={cat.id}
                 href={href}
                 scroll={false}
+                onClick={(e) => handleCategoryClick(e, cat.id)}
                 className={cn(
-                  "shrink-0 rounded-full px-4 py-1.5 text-xs font-medium transition-colors",
-                  activeCategory === cat.id
-                    ? "bg-foreground text-background"
+                  "shrink-0 rounded-full px-4 py-1.5 text-xs font-medium transition-all",
+                  isActive
+                    ? "bg-foreground text-background shadow-sm"
                     : "bg-muted text-muted-foreground hover:bg-muted/80"
                 )}
               >
@@ -81,7 +100,12 @@ export function EventSection({
             : "Belum ada event tersedia."}
         </p>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div
+          className={cn(
+            "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 transition-opacity duration-200",
+            isPending && "opacity-60 pointer-events-none"
+          )}
+        >
           {events.map((event) => (
             <EventCard key={event.id} event={event} />
           ))}
