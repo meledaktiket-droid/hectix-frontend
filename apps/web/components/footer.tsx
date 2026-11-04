@@ -4,7 +4,7 @@ import { Mail, Instagram, Music2 } from "lucide-react"
 import Link from "next/link"
 import { useQuery } from "@tanstack/react-query"
 
-type Social = { href: string; Icon: typeof Mail; external: boolean }
+type Social = { href: string; Icon: typeof Mail; external: boolean; label: string }
 type FooterLink = { label: string; href?: string; external?: boolean }
 
 export function Footer({ showUpper = true }: { showUpper?: boolean }) {
@@ -57,9 +57,9 @@ export function Footer({ showUpper = true }: { showUpper?: boolean }) {
 
   const socials = (
     [
-      data?.contactEmail && { href: `mailto:${data.contactEmail}`, Icon: Mail, external: false },
-      data?.instagramUrl && { href: data.instagramUrl, Icon: Instagram, external: true },
-      data?.tiktokUrl && { href: data.tiktokUrl, Icon: Music2, external: true },
+      data?.contactEmail && { href: `mailto:${data.contactEmail}`, Icon: Mail, external: false, label: "Email Hectix" },
+      data?.instagramUrl && { href: data.instagramUrl, Icon: Instagram, external: true, label: "Instagram Hectix" },
+      data?.tiktokUrl && { href: data.tiktokUrl, Icon: Music2, external: true, label: "TikTok Hectix" },
     ] as (Social | "" | undefined)[]
   ).filter(Boolean) as Social[]
 
@@ -103,10 +103,11 @@ export function Footer({ showUpper = true }: { showUpper?: boolean }) {
       <div className="bg-[#0C2D57] px-6 py-4 md:px-16 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-white">Hectix. All right reserved. 2026</p>
         <div className="flex items-center gap-4">
-          {socials.map(({ href, Icon, external }) => (
+          {socials.map(({ href, Icon, external, label }) => (
             <a
               key={href}
               href={href}
+              aria-label={label}
               {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               className="text-white hover:opacity-70 transition-opacity"
             >

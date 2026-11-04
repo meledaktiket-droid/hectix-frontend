@@ -29,7 +29,7 @@ export default async function Page({
         >
           <div
             className="pointer-events-none absolute inset-x-2 md:inset-x-6 bottom-2 top-[80px] rounded-xl bg-cover bg-top bg-no-repeat"
-            style={{ backgroundImage: "url('/hero-desktop.png')" }}
+            style={{ backgroundImage: "url('/hero-desktop.webp')" }}
           />
           <HeroSection />
           <FeaturedCarousel slides={banners} />

@@ -59,7 +59,7 @@ export function EventSection({
           })}
         </div>
         <Select>
-          <SelectTrigger className="ml-auto w-28 h-8 text-xs shrink-0">
+          <SelectTrigger aria-label="Urutkan acara" className="ml-auto w-28 h-8 text-xs shrink-0">
             <SelectValue placeholder="Urutkan" />
           </SelectTrigger>
           <SelectContent>

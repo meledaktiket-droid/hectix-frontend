@@ -125,6 +125,8 @@ export function FeaturedCarousel({ slides }: { slides: BannerSlide[] }) {
         {slides.map((_, i) => (
           <button
             key={i}
+            type="button"
+            aria-label={`Slide ${i + 1}`}
             onClick={() => api?.scrollTo(i)}
             className={cn(
               "h-1.5 rounded-full transition-all",
