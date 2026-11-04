@@ -1,14 +1,14 @@
-{$WEB_HOST} {
+{$WEB_HOST:http://127.0.0.1:19001} {
 	encode zstd gzip
 	reverse_proxy web:3000
 }
 
-{$ORGANIZER_HOST} {
+{$ORGANIZER_HOST:http://127.0.0.1:19002} {
 	encode zstd gzip
 	reverse_proxy organizer:3000
 }
 
-{$ADMIN_HOST} {
+{$ADMIN_HOST:http://127.0.0.1:19003} {
 	encode zstd gzip
 	reverse_proxy admin:3000
 }
