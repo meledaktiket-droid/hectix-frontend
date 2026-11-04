@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, CalendarDays } from "lucide-react"
 import Link from "next/link"
+import { useQueryClient } from "@tanstack/react-query"
 import { FavoriteButton } from "@/components/favorite-button"
 
 export type EventItem = {
@@ -33,20 +34,32 @@ function formatPrice(price: number) {
 }
 
 export function EventCard({ event }: { event: EventItem }) {
-  function handleClick(e: React.MouseEvent) {
-    if (!window.matchMedia("(min-width: 768px)").matches) {
-      e.preventDefault()
-      window.location.assign(`/events/${event.id}`)
-    }
+  const queryClient = useQueryClient()
+
+  const prefetchEvent = () => {
+    queryClient.prefetchQuery({
+      queryKey: ["event", event.id],
+      queryFn: () => fetch(`/api/events/${event.id}`).then((r) => r.json()),
+      staleTime: 60 * 1000,
+    })
   }
 
   return (
-    <Link href={`/events/${event.id}`} onClick={handleClick}>
+    <Link
+      href={`/events/${event.id}`}
+      onMouseEnter={prefetchEvent}
+      onTouchStart={prefetchEvent}
+    >
       <Card className="overflow-hidden rounded-xl border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer p-0 gap-0">
         <div className="relative h-52 w-full overflow-hidden">
           {event.bannerUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={event.bannerUrl} alt={event.name} className="h-full w-full object-cover" />
+            <img
+              src={event.bannerUrl}
+              alt={event.name}
+              loading="lazy"
+              className="h-full w-full object-cover"
+            />
           ) : (
             <div className="h-full w-full bg-muted" />
           )}
@@ -92,6 +105,7 @@ export function EventCard({ event }: { event: EventItem }) {
                         key={i}
                         src={src}
                         alt=""
+                        loading="lazy"
                         className="h-5 w-5 rounded-full border border-white object-cover"
                       />
                     ))}

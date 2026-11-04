@@ -14,8 +14,9 @@ export function Footer({ showUpper = true }: { showUpper?: boolean }) {
     tiktokUrl: string
     whatsappNumber: string
   }>({
-    queryKey: ["site-config"],
+    queryKey: ["config"],
     queryFn: ({ signal }) => fetch("/api/config", { signal }).then((r) => r.json()),
+    staleTime: 5 * 60 * 1000,
   })
 
   const waHref = data?.whatsappNumber
@@ -87,7 +88,7 @@ export function Footer({ showUpper = true }: { showUpper?: boolean }) {
                           {item.label}
                         </a>
                       ) : (
-                        <Link href={item.href} className={cls}>
+                        <Link href={item.href} prefetch={false} className={cls}>
                           {item.label}
                         </Link>
                       )}

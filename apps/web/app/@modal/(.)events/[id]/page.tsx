@@ -20,7 +20,7 @@ export default function EventModal() {
           if (pendingHref.current) router.replace(pendingHref.current)
           else router.back()
         }}
-        className="hidden inset-y-1 right-1 h-auto w-full gap-0 overflow-y-auto rounded-lg border p-0 shadow-2xl sm:max-w-[560px] md:block"
+        className="inset-y-0 right-0 md:inset-y-1 md:right-1 h-full md:h-auto w-full gap-0 overflow-y-auto rounded-none md:rounded-lg border-0 md:border p-0 shadow-2xl sm:max-w-[560px]"
       >
         <SheetTitle className="sr-only">Detail Acara</SheetTitle>
         <SheetDescription className="sr-only">Detail acara dan pilihan tiket</SheetDescription>
