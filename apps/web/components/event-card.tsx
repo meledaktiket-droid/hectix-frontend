@@ -130,3 +130,29 @@ export function EventCard({ event }: { event: EventItem }) {
     </Link>
   )
 }
+
+export function EventCardSkeleton() {
+  return (
+    <Card className="overflow-hidden rounded-xl border-0 shadow-sm p-0 gap-0">
+      <div className="relative h-52 w-full overflow-hidden bg-muted animate-pulse">
+        <div className="absolute top-2 left-2">
+          <div className="h-5 w-24 rounded-full bg-black/20" />
+        </div>
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/40 to-transparent px-3 pb-2.5 pt-6 space-y-1">
+          <div className="h-3 w-28 rounded bg-white/30" />
+          <div className="h-3 w-40 rounded bg-white/30" />
+        </div>
+      </div>
+      <div className="flex min-h-[60px] items-start justify-between gap-2 p-3">
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
+          <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
+          <div className="h-3.5 w-1/2 animate-pulse rounded bg-muted" />
+        </div>
+        <div className="shrink-0 flex flex-col items-end gap-1.5">
+          <div className="h-2.5 w-12 animate-pulse rounded bg-muted" />
+          <div className="h-4 w-16 animate-pulse rounded bg-muted" />
+        </div>
+      </div>
+    </Card>
+  )
+}

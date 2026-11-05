@@ -1,12 +1,18 @@
+import { Suspense } from "react"
 import { Navbar } from "@/components/navbar"
 import { HeroSection } from "@/components/hero-section"
 import { FeaturedCarousel } from "@/components/featured-carousel"
-import { EventSection } from "@/components/event-section"
+import { EventSection, EventSectionSkeleton } from "@/components/event-section"
 import { FeaturesSection } from "@/components/features-section"
 import { Footer } from "@/components/footer"
 import { getActiveBanners, getPublishedEvents } from "@/lib/events"
 
 export const revalidate = 60
+
+async function EventsList({ category }: { category?: string }) {
+  const events = await getPublishedEvents(undefined, category)
+  return <EventSection events={events} activeCategory={category ?? "terkini"} />
+}
 
 export default async function Page({
   searchParams,
@@ -14,10 +20,7 @@ export default async function Page({
   searchParams: Promise<{ category?: string }>
 }) {
   const { category } = await searchParams
-  const [events, banners] = await Promise.all([
-    getPublishedEvents(undefined, category),
-    getActiveBanners(),
-  ])
+  const banners = await getActiveBanners()
 
   return (
     <>
@@ -34,7 +37,9 @@ export default async function Page({
           <HeroSection />
           <FeaturedCarousel slides={banners} />
         </div>
-        <EventSection events={events} activeCategory={category ?? "terkini"} />
+        <Suspense fallback={<EventSectionSkeleton />}>
+          <EventsList category={category} />
+        </Suspense>
         <FeaturesSection />
       </main>
       <Footer />

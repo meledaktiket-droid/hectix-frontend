@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { EventCard, type EventItem } from "@/components/event-card"
+import { EventCard, EventCardSkeleton, type EventItem } from "@/components/event-card"
 import { categories } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
 
@@ -93,19 +93,20 @@ export function EventSection({
         {query ? `Hasil untuk "${query}" — ${events.length} acara` : "Event Untukmu"}
       </h2>
 
-      {events.length === 0 ? (
+      {isPending ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[...Array(6)].map((_, i) => (
+            <EventCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : events.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-12">
           {query
             ? `Tidak ada acara yang cocok dengan "${query}".`
             : "Belum ada event tersedia."}
         </p>
       ) : (
-        <div
-          className={cn(
-            "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 transition-opacity duration-200",
-            isPending && "opacity-60 pointer-events-none"
-          )}
-        >
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {events.map((event) => (
             <EventCard key={event.id} event={event} />
           ))}
@@ -119,6 +120,26 @@ export function EventSection({
           </Button>
         </div>
       )}
+    </section>
+  )
+}
+
+export function EventSectionSkeleton() {
+  return (
+    <section className="mx-auto max-w-7xl px-4 py-6">
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <div className="flex items-center gap-2 flex-1">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-7 w-20 shrink-0 animate-pulse rounded-full bg-muted" />
+          ))}
+        </div>
+      </div>
+      <div className="mt-6 mb-4 h-6 w-36 animate-pulse rounded bg-muted" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {[...Array(6)].map((_, i) => (
+          <EventCardSkeleton key={i} />
+        ))}
+      </div>
     </section>
   )
 }

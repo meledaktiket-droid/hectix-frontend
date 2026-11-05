@@ -39,11 +39,41 @@ export function EventPanel({
 
   if (isLoading) {
     return (
-      <div className="space-y-4 px-5 pt-14 pb-8">
-        <div className="aspect-square w-full animate-pulse rounded-2xl bg-muted" />
-        <div className="h-8 w-3/4 animate-pulse rounded bg-muted" />
-        <div className="h-5 w-1/2 animate-pulse rounded bg-muted" />
-        <div className="h-40 w-full animate-pulse rounded-2xl bg-muted" />
+      <div className="flex h-full flex-col bg-white">
+        <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-[#EEEEEE] bg-white/90 px-4 py-2.5 backdrop-blur">
+          <div className="h-7 w-28 animate-pulse rounded-full bg-muted" />
+          <div className="ml-auto pr-8" />
+        </div>
+        <div className="space-y-5 px-5 pt-5 pb-10">
+          <div className="overflow-hidden rounded-2xl">
+            <div className="aspect-square w-full animate-pulse bg-muted" />
+          </div>
+          <div className="h-8 w-3/4 animate-pulse rounded-lg bg-muted" />
+          <div className="flex items-center justify-between">
+            <div className="h-6 w-32 animate-pulse rounded-full bg-muted" />
+            <div className="h-6 w-6 animate-pulse rounded-full bg-muted" />
+          </div>
+          <div className="space-y-3 rounded-2xl border border-[#EEEEEE] p-4">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 h-5 w-5 shrink-0 animate-pulse rounded bg-muted" />
+              <div className="space-y-1.5 flex-1">
+                <div className="h-4 w-1/3 animate-pulse rounded bg-muted" />
+                <div className="h-3.5 w-1/4 animate-pulse rounded bg-muted" />
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 h-5 w-5 shrink-0 animate-pulse rounded bg-muted" />
+              <div className="space-y-1.5 flex-1">
+                <div className="h-4 w-1/2 animate-pulse rounded bg-muted" />
+                <div className="h-3.5 w-1/3 animate-pulse rounded bg-muted" />
+              </div>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <div className="h-11 w-full animate-pulse rounded-xl bg-muted" />
+            <div className="h-24 w-full animate-pulse rounded-2xl bg-muted" />
+          </div>
+        </div>
       </div>
     )
   }
