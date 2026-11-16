@@ -27,7 +27,7 @@ import {
 } from "@repo/ui/select";
 import { UserPlus, Trash2, Users, Mail, RotateCw } from "lucide-react";
 
-const ROLES = ["owner", "admin", "member"] as const;
+const ROLES = ["owner", "admin", "member", "volunteer"] as const;
 type Role = typeof ROLES[number];
 
 type ListInvitationsResult = Awaited<

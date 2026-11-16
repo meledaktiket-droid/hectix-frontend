@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { authClient } from "../../lib/auth-client";
-import { LayoutDashboard, Ticket, ShoppingCart, Wallet, Users, Settings, LogOut, ChevronsUpDown, Plus, MessageCircle, Loader2 } from "lucide-react";
+import { LayoutDashboard, Ticket, ShoppingCart, Wallet, Users, Settings, LogOut, ChevronsUpDown, Plus, MessageCircle, Loader2, ScanLine } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -33,6 +33,7 @@ const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Events", href: "/events", icon: Ticket },
   { label: "Orders", href: "/orders", icon: ShoppingCart },
+  { label: "Scanner", href: "/scanner", icon: ScanLine },
   { label: "Finance", href: "/finance", icon: Wallet },
   { label: "Team", href: "/team", icon: Users },
   { label: "Settings", href: "/settings", icon: Settings },
@@ -284,12 +285,26 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     pathname === href || pathname.startsWith(`${href}/`);
   const router = useRouter();
   const { data: orgs, isPending } = authClient.useListOrganizations();
+  const { data: session } = authClient.useSession();
+  const { data: activeOrg } = authClient.useActiveOrganization();
+
+  const myRole = activeOrg?.members?.find((m) => m.userId === session?.user?.id)?.role;
+  const isVolunteer = myRole === "volunteer";
+  const visibleNavItems = isVolunteer
+    ? navItems.filter((item) => item.href === "/scanner")
+    : navItems;
 
   useEffect(() => {
     if (!isPending && orgs && orgs.length === 0) {
       router.replace("/create-org");
     }
   }, [isPending, orgs, router]);
+
+  useEffect(() => {
+    if (isVolunteer && pathname !== "/scanner" && !pathname.startsWith("/scanner/")) {
+      router.replace("/scanner");
+    }
+  }, [isVolunteer, pathname, router]);
 
   if (isPending || !orgs) {
     return (
@@ -322,7 +337,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
-                {navItems.map((item) => (
+                {visibleNavItems.map((item) => (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
                       asChild
