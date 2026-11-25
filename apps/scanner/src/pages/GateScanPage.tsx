@@ -10,7 +10,7 @@ import { enqueueOfflineScan } from '../lib/offlineQueue';
 import type { GateScanResult } from '../types/scanner';
 
 export function GateScanPage() {
-  const { activeEvent, activeSession, operationalMode, isOnline, openModeModal } =
+  const { activeEvent, activeSession, sessions, operationalMode, isOnline, openModeModal, setOperationalMode } =
     useScanner();
   const isGateIn = operationalMode === 'gate_in';
 
@@ -118,10 +118,26 @@ export function GateScanPage() {
               : 'Pindai QR Tiket untuk Gate Keluar'
         }
         accentColor={isGateIn ? 'green' : 'amber'}
-        paused={manualOpen || isChecking || Boolean(scanResult)}
+        paused={manualOpen || isChecking || Boolean(scanResult) || !activeSession}
         onScan={handleScanCode}
         onManualInput={() => setManualOpen(true)}
       />
+
+      {activeEvent && sessions.length === 0 && (
+        <div className="border-t border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-900">
+          <p className="font-semibold">Belum ada sesi gate / tiket fisik untuk event ini.</p>
+          <p className="mt-0.5 text-amber-800">
+            Jika event hanya menggunakan E-Ticket, gunakan menu Tukar untuk memverifikasi tiket.
+          </p>
+          <button
+            type="button"
+            onClick={() => setOperationalMode('redemption')}
+            className="mt-2 inline-flex items-center rounded-lg bg-hectix-navy px-3 py-1.5 text-xs font-semibold text-white"
+          >
+            Buka Menu Tukar E-Ticket
+          </button>
+        </div>
+      )}
 
       <ManualCodeModal
         open={manualOpen}
