@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { inspectOrgInvite } from "./actions";
-import { GoogleAcceptButton, SignOutButton } from "./accept-actions";
+import { GoogleAcceptButton, InviteDecisionButtons, SignOutButton } from "./accept-actions";
 
 function LogoMark() {
   return (
@@ -126,6 +126,13 @@ export default async function InviteAcceptPage({
             </p>
           </div>
           <SignOutButton />
+        </Shell>
+      );
+
+    case "needs-accept":
+      return (
+        <Shell>
+          <InviteDecisionButtons id={id} />
         </Shell>
       );
 

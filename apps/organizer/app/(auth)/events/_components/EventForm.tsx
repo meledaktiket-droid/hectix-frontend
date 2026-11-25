@@ -54,7 +54,25 @@ type TicketType = {
   price: number;
   quantity: number;
   benefits: string[];
+  validDates?: string[];
 };
+
+function getDateRange(startsAt: string, endsAt: string): string[] {
+  const s = startsAt?.slice(0, 10);
+  if (!s) return [];
+  const e = endsAt?.slice(0, 10) || s;
+  const start = new Date(s + "T00:00:00Z");
+  const end = new Date(e + "T00:00:00Z");
+  if (isNaN(start.getTime())) return [];
+  if (isNaN(end.getTime()) || end < start) return [s];
+  const out: string[] = [];
+  const cur = new Date(start);
+  while (cur <= end && out.length < 31) {
+    out.push(cur.toISOString().slice(0, 10));
+    cur.setUTCDate(cur.getUTCDate() + 1);
+  }
+  return out;
+}
 
 const ticketKey = (t: TicketType) => t.id ?? t._key ?? "";
 
@@ -131,6 +149,7 @@ function SortableTicketRow({
           {ticket.price === 0 ? "Free" : `Rp ${formatRupiah(ticket.price)}`}
           {" · "}
           {ticket.quantity.toLocaleString("id-ID")} tiket
+          {(ticket.validDates?.length ?? 0) > 0 && ` · ${ticket.validDates!.length} hari`}
           {(ticket.benefits?.length ?? 0) > 0 && ` · ${ticket.benefits.length} benefit`}
         </p>
       </div>
@@ -249,18 +268,25 @@ function TicketModal({
   onClose,
   onSave,
   initial,
+  eventStartsAt,
+  eventEndsAt,
 }: {
   open: boolean;
   onClose: () => void;
   onSave: (t: TicketType) => void;
   initial?: TicketType | null;
+  eventStartsAt: string;
+  eventEndsAt: string;
 }) {
+  const eventDates = getDateRange(eventStartsAt, eventEndsAt);
   const [name, setName] = useState(initial?.name ?? "");
   const [price, setPrice] = useState(initial?.price ?? 0);
   const [quantity, setQuantity] = useState(initial?.quantity ?? 1);
   const [priceInput, setPriceInput] = useState(initial ? formatRupiah(initial.price) : "");
   const [benefits, setBenefits] = useState<string[]>(initial?.benefits ?? []);
   const [benefitInput, setBenefitInput] = useState("");
+  const [validDates, setValidDates] = useState<string[]>(initial?.validDates ?? []);
+  const [customDate, setCustomDate] = useState("");
 
   useEffect(() => {
     if (open) {
@@ -270,12 +296,27 @@ function TicketModal({
       setPriceInput(initial ? formatRupiah(initial.price) : "");
       setBenefits(initial?.benefits ?? []);
       setBenefitInput("");
+      const dates = getDateRange(eventStartsAt, eventEndsAt);
+      if (initial?.validDates && initial.validDates.length > 0) {
+        setValidDates(initial.validDates);
+      } else if (dates.length === 1) {
+        setValidDates([dates[0]!]);
+      } else {
+        setValidDates([]);
+      }
+      setCustomDate("");
     }
-  }, [open, initial]);
+  }, [open, initial, eventStartsAt, eventEndsAt]);
+
+  function toggleDate(d: string) {
+    setValidDates((prev) =>
+      prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d].sort()
+    );
+  }
 
   function handleSave() {
     if (!name.trim() || quantity < 1) return;
-    onSave({ id: initial?.id, name: name.trim(), price, quantity, benefits });
+    onSave({ id: initial?.id, name: name.trim(), price, quantity, benefits, validDates });
     onClose();
   }
 
@@ -323,6 +364,67 @@ function TicketModal({
               onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value, 10) || 1))}
               className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">
+              Tanggal Berlaku Acara <span className="text-muted-foreground">(Multiple Day)</span>
+            </label>
+            {eventDates.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {eventDates.map((d, idx) => {
+                  const selected = validDates.includes(d);
+                  return (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => toggleDate(d)}
+                      className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
+                        selected
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-input bg-background text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      Hari {idx + 1} ({new Date(d + "T00:00:00").toLocaleDateString("id-ID", { day: "2-digit", month: "short" })})
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <input
+                type="date"
+                value={customDate}
+                onChange={(e) => setCustomDate(e.target.value)}
+                className="flex-1 rounded-lg border border-input bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  if (customDate && !validDates.includes(customDate)) {
+                    setValidDates((prev) => [...prev, customDate].sort());
+                    setCustomDate("");
+                  }
+                }}
+                className="rounded-lg border px-3 py-1.5 text-xs font-medium hover:bg-muted transition-colors"
+              >
+                + Tanggal
+              </button>
+            </div>
+            {validDates.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {validDates.map((d) => (
+                  <span key={d} className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium">
+                    {d}
+                    <button type="button" onClick={() => toggleDate(d)} className="text-muted-foreground hover:text-destructive">
+                      <X className="size-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Sesi acara akan otomatis tersambung sesuai tanggal yang dipilih.
+            </p>
           </div>
           <div className="space-y-1.5">
             <label className="text-sm font-medium">
@@ -1173,6 +1275,8 @@ export function EventForm({
         open={ticketModal.open}
         onClose={() => setTicketModal({ open: false, editing: null })}
         initial={ticketModal.editing}
+        eventStartsAt={startsAt}
+        eventEndsAt={endsAt}
         onSave={(t) => {
           if (ticketModal.editing) {
             setTickets((prev) =>

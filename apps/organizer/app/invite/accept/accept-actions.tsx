@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { authClient } from "../../../lib/auth-client";
+import { acceptOrgInvite, rejectOrgInvite } from "./actions";
 
 function GoogleIcon() {
   return (
@@ -66,5 +68,106 @@ export function SignOutButton() {
     >
       {pending ? "Signing out..." : "Sign out and try another account"}
     </button>
+  );
+}
+
+export function InviteDecisionButtons({ id }: { id: string }) {
+  const [state, setState] = useState<"idle" | "accepting" | "rejecting" | "accepted" | "rejected">("idle");
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleAccept() {
+    setError(null);
+    setState("accepting");
+    try {
+      await acceptOrgInvite(id);
+      setState("accepted");
+    } catch {
+      setError("Gagal menerima undangan. Silakan coba lagi.");
+      setState("idle");
+    }
+  }
+
+  async function handleReject() {
+    setError(null);
+    setState("rejecting");
+    try {
+      await rejectOrgInvite(id);
+      setState("rejected");
+    } catch {
+      setError("Gagal menolak undangan. Silakan coba lagi.");
+      setState("idle");
+    }
+  }
+
+  if (state === "accepted") {
+    return (
+      <div>
+        <div className="mb-10">
+          <h1 className="text-2xl font-semibold tracking-tight text-neutral-900">
+            Undangan Diterima!
+          </h1>
+          <p className="mt-1.5 text-sm leading-relaxed text-neutral-500">
+            Akses Anda sudah aktif. Silakan lanjut ke halaman aplikasi.
+          </p>
+        </div>
+        <Link
+          href="/dashboard"
+          className="flex w-full items-center justify-center rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-neutral-800"
+        >
+          Buka Aplikasi
+        </Link>
+      </div>
+    );
+  }
+
+  if (state === "rejected") {
+    return (
+      <div>
+        <div className="mb-10">
+          <h1 className="text-2xl font-semibold tracking-tight text-neutral-900">
+            Undangan Ditolak
+          </h1>
+          <p className="mt-1.5 text-sm leading-relaxed text-neutral-500">
+            Anda telah menolak undangan ini.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="mb-8">
+        <h1 className="text-2xl font-semibold tracking-tight text-neutral-900">
+          Konfirmasi Undangan
+        </h1>
+        <p className="mt-1.5 text-sm leading-relaxed text-neutral-500">
+          Apakah Anda bersedia menerima undangan tugas ini?
+        </p>
+      </div>
+      {error && (
+        <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600">
+          {error}
+        </p>
+      )}
+      <div className="space-y-2.5">
+        <button
+          type="button"
+          onClick={handleAccept}
+          disabled={state !== "idle"}
+          className="flex w-full items-center justify-center rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-neutral-800 disabled:opacity-50"
+        >
+          {state === "accepting" ? "Memproses..." : "Terima Undangan (Accept)"}
+        </button>
+        <button
+          type="button"
+          onClick={handleReject}
+          disabled={state !== "idle"}
+          className="flex w-full items-center justify-center rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 disabled:opacity-50"
+        >
+          {state === "rejecting" ? "Memproses..." : "Tolak Undangan (Decline)"}
+        </button>
+      </div>
+    </div>
   );
 }

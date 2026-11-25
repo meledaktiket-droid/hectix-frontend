@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { authClient } from "../../lib/auth-client";
-import { LayoutDashboard, Ticket, ShoppingCart, Wallet, Users, Settings, LogOut, ChevronsUpDown, Plus, MessageCircle, Loader2, ScanLine } from "lucide-react";
+import { LayoutDashboard, Ticket, ShoppingCart, Wallet, Users, Settings, LogOut, ChevronsUpDown, Plus, MessageCircle, Loader2 } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -33,7 +33,6 @@ const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Events", href: "/events", icon: Ticket },
   { label: "Orders", href: "/orders", icon: ShoppingCart },
-  { label: "Scanner", href: "/scanner", icon: ScanLine },
   { label: "Finance", href: "/finance", icon: Wallet },
   { label: "Team", href: "/team", icon: Users },
   { label: "Settings", href: "/settings", icon: Settings },
@@ -58,8 +57,11 @@ function Avatar({ name, image }: { name?: string | null; image?: string | null }
 function OrgSwitcher() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { data: session } = authClient.useSession();
   const { data: activeOrg, isPending: activeOrgPending } = authClient.useActiveOrganization();
   const { data: orgs, isPending: orgsPending } = authClient.useListOrganizations();
+  const isVolunteer =
+    activeOrg?.members?.find((m) => m.userId === session?.user?.id)?.role === "volunteer";
 
   async function handleSetActive(organizationId: string) {
     await authClient.organization.setActive({ organizationId });
@@ -112,13 +114,17 @@ function OrgSwitcher() {
             </DropdownMenuItem>
           ))
         )}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={() => router.push("/create-org")} className="gap-3 py-2">
-          <div className="flex size-7 shrink-0 items-center justify-center rounded-md border border-dashed">
-            <Plus className="size-3.5" />
-          </div>
-          <span>New organization</span>
-        </DropdownMenuItem>
+        {!isVolunteer && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={() => router.push("/create-org")} className="gap-3 py-2">
+              <div className="flex size-7 shrink-0 items-center justify-center rounded-md border border-dashed">
+                <Plus className="size-3.5" />
+              </div>
+              <span>New organization</span>
+            </DropdownMenuItem>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -280,19 +286,21 @@ function InactiveBanner() {
 }
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);
   const router = useRouter();
   const { data: orgs, isPending } = authClient.useListOrganizations();
-  const { data: session } = authClient.useSession();
-  const { data: activeOrg } = authClient.useActiveOrganization();
+  const { data: session, isPending: sessionPending } = authClient.useSession();
+  const { data: activeOrg, isPending: activeOrgPending } = authClient.useActiveOrganization();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const myRole = activeOrg?.members?.find((m) => m.userId === session?.user?.id)?.role;
   const isVolunteer = myRole === "volunteer";
-  const visibleNavItems = isVolunteer
-    ? navItems.filter((item) => item.href === "/scanner")
-    : navItems;
 
   useEffect(() => {
     if (!isPending && orgs && orgs.length === 0) {
@@ -300,13 +308,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     }
   }, [isPending, orgs, router]);
 
-  useEffect(() => {
-    if (isVolunteer && pathname !== "/scanner" && !pathname.startsWith("/scanner/")) {
-      router.replace("/scanner");
-    }
-  }, [isVolunteer, pathname, router]);
-
-  if (isPending || !orgs) {
+  if (!mounted || isPending || sessionPending || activeOrgPending || !orgs) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="size-6 animate-spin text-muted-foreground" />
@@ -318,6 +320,30 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (isVolunteer) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 text-center">
+        <div className="w-full max-w-sm rounded-2xl border bg-card p-6 shadow-sm">
+          <h1 className="text-lg font-semibold text-foreground">Akses Ditolak</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Akun Volunteer hanya dapat mengakses Aplikasi Scanner dan tidak memiliki akses ke dashboard Organizer.
+          </p>
+          <button
+            type="button"
+            onClick={async () => {
+              await authClient.signOut();
+              router.push("/");
+            }}
+            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            <LogOut className="size-4" />
+            Logout / Ganti Akun
+          </button>
+        </div>
       </div>
     );
   }
@@ -337,7 +363,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
-                {visibleNavItems.map((item) => (
+                {navItems.map((item) => (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
                       asChild

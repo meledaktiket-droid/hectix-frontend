@@ -49,6 +49,7 @@ export const urls = {
   web: process.env.E2E_WEB_URL ?? "http://localhost:3000",
   organizer: process.env.E2E_ORGANIZER_URL ?? "http://localhost:3001",
   admin: process.env.E2E_ADMIN_URL ?? "http://localhost:3002",
+  scanner: process.env.E2E_SCANNER_URL ?? "http://localhost:3003",
 };
 
 export type App = keyof typeof urls;

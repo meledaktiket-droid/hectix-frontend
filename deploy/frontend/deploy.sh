@@ -6,9 +6,9 @@ git pull --ff-only
 
 # Build satu per satu (sequential) agar aman di instance 2 vCPU / 2 GB RAM (t3.small).
 # Jika argumen diberikan (mis. ./deploy.sh web), hanya build & jalankan app tersebut + caddy.
-APPS=("${@:-web organizer admin}")
+APPS=("${@:-web organizer admin scanner}")
 if [[ $# -eq 0 ]]; then
-  APPS=(web organizer admin)
+  APPS=(web organizer admin scanner)
 else
   APPS=("$@")
 fi

@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@theme {
+  --font-heading: "IBM Plex Sans KR", "Inter", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-hectix-navy: #0C2D57;
+  --color-hectix-blue: #2563EB;
+  --color-status-success: #16A34A;
+  --color-status-success-bg: #F0FDF4;
+  --color-status-warning: #CA8A04;
+  --color-status-warning-bg: #FEFCE8;
+  --color-status-danger: #DC2626;
+  --color-status-danger-bg: #FEF2F2;
+  --color-status-offline: #475569;
+  --color-border-subtle: #DCE4EC;
+}
+
+@layer base {
+  html,
+  body {
+    font-family: var(--font-sans);
+    background-color: #f8fafc;
+    color: #0f172a;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: contain;
+  }
+
+  h1, h2, h3, .font-heading {
+    font-family: var(--font-heading);
+  }
+}
+
+@keyframes scanline {
+  0%, 100% {
+    transform: translateY(8px);
+  }
+  50% {
+    transform: translateY(224px);
+  }
+}
+
+.animate-scan-line {
+  animation: scanline 2.2s ease-in-out infinite;
+}

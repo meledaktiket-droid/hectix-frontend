@@ -4,7 +4,7 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "../../lib/auth-client";
 import { Providers } from "../providers";
-import { LayoutDashboard, Ticket, Users, UserRound, Settings, LogOut, Building2, Image, Wallet, ShoppingCart, ScanLine, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, Ticket, Users, UserRound, Settings, LogOut, Building2, Image, Wallet, ShoppingCart, type LucideIcon } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -39,7 +39,6 @@ const navGroups: NavGroup[] = [
   { label: "Activity", items: [
     { label: "Events", href: "/events", icon: Ticket },
     { label: "Orders", href: "/orders", icon: ShoppingCart },
-    { label: "Scanner", href: "/scanner", icon: ScanLine },
   ] },
   { label: "Finance", items: [
     { label: "Payouts", href: "/payouts", icon: Wallet },

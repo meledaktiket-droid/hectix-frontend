@@ -12,3 +12,22 @@
 	encode zstd gzip
 	reverse_proxy admin:3000
 }
+
+{$SCANNER_HOST:http://127.0.0.1:19004} {
+	encode zstd gzip
+	handle /api/* {
+		reverse_proxy {$API_INTERNAL_URL} {
+			header_up Host {upstream_hostport}
+			header_up X-Forwarded-Host {host}
+		}
+	}
+	handle /uploads/* {
+		reverse_proxy {$API_INTERNAL_URL} {
+			header_up Host {upstream_hostport}
+			header_up X-Forwarded-Host {host}
+		}
+	}
+	handle {
+		reverse_proxy scanner:3000
+	}
+}

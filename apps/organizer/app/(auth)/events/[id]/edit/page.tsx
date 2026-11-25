@@ -12,6 +12,7 @@ type TicketType = {
   price: number;
   quantity: number;
   benefits: string[];
+  validDates?: string[];
 };
 
 async function syncTickets(eventId: string, initial: TicketType[], current: TicketType[]) {
@@ -39,7 +40,7 @@ async function syncTickets(eventId: string, initial: TicketType[], current: Tick
         fetch(`/api/events/${eventId}/tickets`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: t.name, price: t.price, quantity: t.quantity, benefits: t.benefits, displayOrder: i }),
+          body: JSON.stringify({ name: t.name, price: t.price, quantity: t.quantity, benefits: t.benefits, validDates: t.validDates, displayOrder: i }),
         }).then(async (r) => {
           if (!r.ok) {
             const j = await r.json().catch(() => ({}));
@@ -52,7 +53,7 @@ async function syncTickets(eventId: string, initial: TicketType[], current: Tick
         fetch(`/api/events/${eventId}/tickets/${t.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: t.name, price: t.price, quantity: t.quantity, benefits: t.benefits, displayOrder: i }),
+          body: JSON.stringify({ name: t.name, price: t.price, quantity: t.quantity, benefits: t.benefits, validDates: t.validDates, displayOrder: i }),
         }).then(async (r) => {
           if (!r.ok) {
             const j = await r.json().catch(() => ({}));

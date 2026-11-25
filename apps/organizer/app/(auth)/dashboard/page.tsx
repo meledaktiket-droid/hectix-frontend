@@ -76,7 +76,7 @@ export default function DashboardPage() {
   if (isPending) return <DashboardSkeleton />;
   if (!activeOrg) return <CreateOrgPrompt />;
 
-  if (isLoading || !data) return <DashboardSkeleton name={activeOrg.name} />;
+  if (isLoading || !data || !data.stats) return <DashboardSkeleton name={activeOrg.name} />;
 
   const { stats, revenueByDay, ordersByStatus, topEvents, upcomingEvents } = data;
 

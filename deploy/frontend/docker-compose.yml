@@ -37,6 +37,13 @@ services:
         API_INTERNAL_URL: ${API_INTERNAL_URL}
     image: hectix-admin
 
+  scanner:
+    build:
+      context: ../..
+      dockerfile: deploy/Dockerfile.scanner
+    image: hectix-scanner
+    restart: unless-stopped
+
   caddy:
     image: caddy:2
     restart: unless-stopped

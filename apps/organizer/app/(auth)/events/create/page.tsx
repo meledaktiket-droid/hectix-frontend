@@ -10,6 +10,7 @@ type TicketType = {
   price: number;
   quantity: number;
   benefits: string[];
+  validDates?: string[];
 };
 
 type Performer = {
@@ -48,7 +49,7 @@ export default function CreateEventPage() {
           fetch(`/api/events/${eventId}/tickets`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: ticket.name, price: ticket.price, quantity: ticket.quantity, benefits: ticket.benefits }),
+            body: JSON.stringify({ name: ticket.name, price: ticket.price, quantity: ticket.quantity, benefits: ticket.benefits, validDates: ticket.validDates }),
           })
         )
       );
