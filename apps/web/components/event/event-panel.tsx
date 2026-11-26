@@ -99,9 +99,10 @@ export function EventPanel({
 
   function adjust(index: number, delta: number) {
     if (eventEnded) return
+    const remaining = Math.max(0, event!.tickets[index]?.remaining ?? 0)
     setQuantities((prev) => {
       const base = prev.length === event!.tickets.length ? prev : event!.tickets.map(() => 0)
-      return base.map((q, i) => (i === index ? Math.max(0, q + delta) : q))
+      return base.map((q, i) => (i === index ? Math.min(remaining, Math.max(0, q + delta)) : q))
     })
   }
 
@@ -220,6 +221,11 @@ export function EventPanel({
                     <div className="min-w-0 flex-1">
                       <div className="flex items-baseline gap-2 flex-wrap">
                         <p className="text-[15px] font-semibold text-[#303030]">{tier.name}</p>
+                        {!eventEnded && typeof tier.remaining === "number" && tier.remaining === 0 && (
+                          <span className="text-[12px] font-semibold text-[#DB0000]">
+                            Habis
+                          </span>
+                        )}
                         {!eventEnded && typeof tier.remaining === "number" && tier.remaining > 0 && tier.remaining < 10 && (
                           <span className="text-[12px] font-semibold text-[#DB0000]">
                             {tier.remaining} tersisa!
@@ -257,7 +263,7 @@ export function EventPanel({
                     <div className="flex shrink-0 items-center gap-2">
                       <button
                         onClick={() => adjust(i, -1)}
-                        disabled={eventEnded}
+                        disabled={eventEnded || (tier.remaining ?? 0) <= 0 || effectiveQuantities[i] <= 0}
                         className="flex h-7 w-7 items-center justify-center rounded-full border border-[#E5E5E5] hover:bg-[#F5F5F5] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                       >
                         <Minus className="h-3 w-3" />
@@ -265,7 +271,7 @@ export function EventPanel({
                       <span className="w-5 text-center text-sm font-medium">{effectiveQuantities[i]}</span>
                       <button
                         onClick={() => adjust(i, 1)}
-                        disabled={eventEnded}
+                        disabled={eventEnded || (tier.remaining ?? 0) <= 0 || effectiveQuantities[i] >= Math.max(0, tier.remaining ?? 0)}
                         className="flex h-7 w-7 items-center justify-center rounded-full border border-[#E5E5E5] hover:bg-[#F5F5F5] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                       >
                         <Plus className="h-3 w-3" />

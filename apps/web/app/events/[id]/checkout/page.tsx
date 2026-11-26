@@ -19,7 +19,7 @@ type EventData = {
   id: string
   name: string
   startsAt: string
-  tickets: { id: string; name: string; price: number; quantity: number }[]
+  tickets: { id: string; name: string; price: number; quantity: number; remaining: number }[]
 }
 
 function parseTicketsParam(raw: string | null): Record<string, number> {
@@ -168,7 +168,10 @@ export default function CheckoutPage() {
 
   const user = session?.data?.user ?? null
   const isLoggedIn = !!user
-  const canSubmit = isLoggedIn && acceptTerms && ticketCount > 0
+  const hasSoldOut = eventData
+    ? eventData.tickets.some((t) => (ticketsParam[t.id] ?? 0) > Math.max(0, t.remaining ?? 0))
+    : false
+  const canSubmit = isLoggedIn && acceptTerms && ticketCount > 0 && !hasSoldOut
 
   const tierLabel = selectedItems[0]?.ticketTypeName ?? ""
 
@@ -238,6 +241,12 @@ export default function CheckoutPage() {
                   </Typography>
                 </label>
               </div>
+
+              {hasSoldOut && (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-medium text-red-700">
+                  Stok tiket yang Anda pilih sudah habis atau tidak mencukupi. Silakan kembali ke halaman acara.
+                </div>
+              )}
 
               <div className="hidden md:block md:order-none">
                 {isLoggedIn ? (
